@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#6c5ce7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Not Defterim">
+    <title>Görsel Not Defterim</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%236c5ce7' width='100' height='100' rx='20'/><text x='50' y='65' font-size='50' text-anchor='middle' fill='white'>📝</text></svg>">
+    <style>
+        /* --- GENEL TASARIM VE DEĞİŞKENLER --- */
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --primary: #6c5ce7;
+            --text-color: #2d3436;
+            --card-title-color: #2d3436;
+            --soft-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            --radius: 20px;
+            --input-border: #dfe6e9;
+            --image-area-bg: #dfe6e9;
+            --image-area-hover: #ced6e0;
+            --add-photo-color: #b2bec3;
+            --btn-secondary-bg: #dfe6e9;
+            --muted-text: #888;
+        }
+
+        /* Gece modu */
+        body.dark-mode {
+            --bg-color: #1a1a2e;
+            --card-bg: #16213e;
+            --primary: #7c6cf7;
+            --text-color: #e8e8e8;
+            --card-title-color: #f0f0f5;
+            --soft-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            --input-border: #2d3748;
+            --image-area-bg: #2d3748;
+            --image-area-hover: #3d4a5c;
+            --add-photo-color: #718096;
+            --btn-secondary-bg: #2d3748;
+            --muted-text: #a0aec0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        button:active { transform: scale(0.96); }
+
+        /* --- ÜST KONTROL PANELİ --- */
+        .toolbar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-secondary { background-color: var(--btn-secondary-bg); color: var(--text-color); }
+        .btn-success { background-color: #00b894; color: white; }
+        .btn-danger { background-color: #ff7675; color: white; }
+
+        .btn-theme {
+            background: var(--btn-secondary-bg);
+            color: var(--text-color);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- ANA EKRAN (GRID) --- */
+        #main-screen {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* --- KUTUCUK (CARD) TASARIMI --- */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--soft-shadow);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+            transition: transform 0.2s;
+            cursor: grab;
+        }
+
+        .card:hover { transform: translateY(-5px); }
+        .card.dragging { opacity: 0.5; border: 2px dashed var(--primary); }
+
+        .card-header input {
+            width: 100%;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background: transparent;
+            outline: none;
+            padding: 5px;
+            border-bottom: 2px solid transparent;
+            color: var(--card-title-color);
+        }
+        .card-header input::placeholder { color: var(--muted-text); }
+        .card-header input:focus { border-bottom-color: var(--primary); }
+
+        /* Resim Alanı */
+        .image-area {
+            width: 100%;
+            height: 150px;
+            background-color: var(--image-area-bg);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .image-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .add-photo-btn {
+            font-size: 2rem;
+            color: var(--add-photo-color);
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .add-photo-btn:hover { background-color: var(--image-area-hover); }
+
+        .delete-photo {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--card-bg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            color: red;
+        }
+
+        .open-note-btn {
+            background-color: var(--primary);
+            color: white;
+            width: 100%;
+            margin-top: auto;
+        }
+        
+        .delete-card-btn {
+            background-color: transparent;
+            color: #ff7675;
+            font-size: 0.8rem;
+            align-self: flex-end;
+            padding: 5px;
+        }
+
+        /* --- NOT DÜZENLEME EKRANI --- */
+        #note-screen {
+            display: none; /* Başlangıçta gizli */
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--soft-shadow);
+            height: 80vh;
+            flex-direction: column;
+        }
+
+        #note-title-display {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        textarea {
+            width: 100%;
+            flex-grow: 1;
+            border: 2px solid var(--input-border);
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 1.1rem;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+        textarea:focus { border-color: var(--primary); }
+
+        .note-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        /* Gizli dosya inputu */
+        #file-input-global { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar" id="toolbar">
+        <button class="btn-primary" onclick="addNewCard()">+ Yeni Kutu Ekle</button>
+        <button class="btn-success" onclick="exportData()">💾 Verileri İndir (Yedekle)</button>
+        <button class="btn-secondary" onclick="triggerImport()">📂 Veri Yükle</button>
+        <button class="btn-theme" id="theme-toggle" onclick="toggleDarkMode()" title="Gece modu">
+            <span id="theme-icon">🌙</span>
+            <span id="theme-label">Gece Modu</span>
+        </button>
+        <input type="file" id="import-file" style="display: none;" onchange="importData(this)">
+    </div>
+
+    <div id="main-screen">
+        </div>
+
+    <div id="note-screen">
+        <div class="note-controls">
+            <button class="btn-secondary" onclick="goBack()">⬅ Ana Menüye Dön</button>
+            <span style="align-self: center; color: var(--muted-text); font-size: 0.9rem;" id="save-status"></span>
+        </div>
+        <h2 id="note-title-display">Başlık</h2>
+        <textarea id="note-content" placeholder="Buraya notlarınızı yazın..."></textarea>
+    </div>
+
+    <script>
+        // Veri Yapısı: Kartlar listesi
+        let cards = [];
+        let currentCardId = null;
+
+        // Sayfa yüklendiğinde verileri çek ve gece modu tercihini uygula
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedData = localStorage.getItem('mySoftNotesApp');
+            if (savedData) {
+                cards = JSON.parse(savedData);
+            } else {
+                // Varsayılan bir örnek kart ekle
+                cards = [{
+                    id: Date.now(),
+                    title: 'İlk Notum',
+                    image: null,
+                    content: 'Hoşgeldiniz! Kutucuklara tıklayarak burayı düzenleyebilirsiniz.'
+                }];
+            }
+            // Gece modu tercihini yükle
+            const isDark = localStorage.getItem('mySoftNotesApp_darkMode') === 'true';
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('theme-icon').textContent = '☀️';
+                document.getElementById('theme-label').textContent = 'Gündüz Modu';
+            }
+            renderCards();
+        });
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('mySoftNotesApp_darkMode', isDark);
+            document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙';
+            document.getElementById('theme-label').textContent = isDark ? 'Gündüz Modu' : 'Gece Modu';
+        }
+
+        // --- TEMEL FONKSİYONLAR ---
+
+        function saveDataToLocal() {
+            localStorage.setItem('mySoftNotesApp', JSON.stringify(cards));
+            showSaveStatus("Otomatik Kaydedildi");
+        }
+
+        function addNewCard() {
+            const newCard = {
+                id: Date.now(),
+                title: 'Yeni Başlık',
+                image: null,
+                content: ''
+            };
+            cards.push(newCard);
+            saveDataToLocal();
+            renderCards();
+        }
+
+        function deleteCard(id) {
+            if(confirm("Bu kutucuğu silmek istediğine emin misin?")) {
+                cards = cards.filter(c => c.id !== id);
+                saveDataToLocal();
+                renderCards();
+            }
+        }
+
+        function updateTitle(id, newTitle) {
+            const card = cards.find(c => c.id === id);
+            if (card) {
+                card.title = newTitle;
+                saveDataToLocal();
+            }
+        }
+
+        // --- GÖRSEL YÖNETİMİ ---
+
+        function triggerImageUpload(id) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const card = cards.find(c => c.id === id);
+                        card.image = event.target.result; // Base64 olarak kaydet
+                        saveDataToLocal();
+                        renderCards();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        }
+
+        function removeImage(id, event) {
+            event.stopPropagation(); // Karta tıklamayı engelle
+            const card = cards.find(c => c.id === id);
+            card.image = null;
+            saveDataToLocal();
+            renderCards();
+        }
+
+        // --- RENDER (EKRANA ÇİZME) ---
+
+        function renderCards() {
+            const container = document.getElementById('main-screen');
+            container.innerHTML = '';
+
+            cards.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card';
+                cardEl.draggable = true;
+                cardEl.dataset.index = index;
+
+                // Sürükle Bırak Olayları
+                cardEl.addEventListener('dragstart', dragStart);
+                cardEl.addEventListener('dragover', dragOver);
+                cardEl.addEventListener('drop', drop);
+                cardEl.addEventListener('dragenter', dragEnter);
+                cardEl.addEventListener('dragleave', dragLeave);
+
+                // Görsel Alanı HTML
+                let imageHtml = '';
+                if (card.image) {
+                    imageHtml = `
+                        <div class="image-area">
+                            <img src="${card.image}" alt="Note Image">
+                            <div class="delete-photo" onclick="removeImage(${card.id}, event)">x</div>
+                        </div>`;
+                } else {
+                    imageHtml = `
+                        <div class="image-area" onclick="triggerImageUpload(${card.id})">
+                            <div class="add-photo-btn">+</div>
+                        </div>`;
+                }
+
+                cardEl.innerHTML = `
+                    <div class="card-header">
+                        <input type="text" value="${card.title}" oninput="updateTitle(${card.id}, this.value)" onclick="event.stopPropagation()">
+                    </div>
+                    ${imageHtml}
+                    <button class="open-note-btn" onclick="openNoteScreen(${card.id})">Notu Aç ✏️</button>
+                    <button class="delete-card-btn" onclick="deleteCard(${card.id})">Sil</button>
+                `;
+
+                container.appendChild(cardEl);
+            });
+        }
+
+        // --- NOT EKRANI VE NAVİGASYON ---
+
+        function openNoteScreen(id) {
+            currentCardId = id;
+            const card = cards.find(c => c.id === id);
+            
+            document.getElementById('main-screen').style.display = 'none';
+            document.getElementById('toolbar').style.display = 'none';
+            document.getElementById('note-screen').style.display = 'flex';
+            
+            document.getElementById('note-title-display').innerText = card.title;
+            document.getElementById('note-content').value = card.content || '';
+        }
+
+        function goBack() {
+            // Kaydet
+            if (currentCardId !== null) {
+                const content = document.getElementById('note-content').value;
+                const card = cards.find(c => c.id === currentCardId);
+                if (card) {
+                    card.content = content;
+                    saveDataToLocal();
+                }
+            }
+
+            document.getElementById('note-screen').style.display = 'none';
+            document.getElementById('main-screen').style.display = 'grid';
+            document.getElementById('toolbar').style.display = 'flex';
+            currentCardId = null;
+            renderCards(); // Başlık değişmiş olabilir vs. diye yeniden çiz
+        }
+
+        function showSaveStatus(msg) {
+            const el = document.getElementById('save-status');
+            if(document.getElementById('note-screen').style.display === 'flex') {
+                el.innerText = msg;
+                setTimeout(() => el.innerText = '', 2000);
+            }
+        }
+
+        // --- SÜRÜKLE BIRAK MANTIĞI ---
+
+        let dragStartIndex;
+
+        function dragStart() {
+            dragStartIndex = +this.dataset.index;
+            this.classList.add('dragging');
+        }
+
+        function dragOver(e) {
+            e.preventDefault(); // Drop'a izin ver
+        }
+
+        function dragEnter() {
+            this.classList.add('over');
+        }
+
+        function dragLeave() {
+            this.classList.remove('over');
+        }
+
+        function drop() {
+            const dragEndIndex = +this.dataset.index;
+            swapItems(dragStartIndex, dragEndIndex);
+            this.classList.remove('over');
+            
+            // Dragging class'ını temizle (DOM yeniden çizildiği için bazen gerekmez ama garantileyelim)
+            document.querySelectorAll('.card').forEach(card => card.classList.remove('dragging'));
+        }
+
+        function swapItems(fromIndex, toIndex) {
+            const itemOne = cards[fromIndex];
+            const itemTwo = cards[toIndex];
+            
+            cards[fromIndex] = itemTwo;
+            cards[toIndex] = itemOne;
+            
+            saveDataToLocal();
+            renderCards();
+        }
+
+        // --- DIŞA VE İÇE AKTARMA (EXPORT/IMPORT) ---
+
+        function exportData() {
+            const dataStr = JSON.stringify(cards);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'notlarim_yedek.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+
+        function triggerImport() {
+            document.getElementById('import-file').click();
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const json = JSON.parse(e.target.result);
+                    if (Array.isArray(json)) {
+                        cards = json;
+                        saveDataToLocal();
+                        renderCards();
+                        alert("Yedek başarıyla yüklendi!");
+                    } else {
+                        alert("Dosya formatı hatalı.");
+                    }
+                } catch (err) {
+                    alert("Dosya okunamadı: " + err);
+                }
+            };
+            reader.readAsText(file);
+            input.value = ''; // Input'u sıfırla ki aynı dosyayı tekrar seçebil
+        }
+
+        // Service Worker - Offline desteği
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(() => {
+                    console.log('Service Worker kayıtlı - Offline çalışabilir');
+                }).catch(err => console.log('SW kayıt hatası:', err));
+            });
+        }
+
+    </script>
+</body>
+</html>
