@@ -2,239 +2,372 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>7. Sınıf Sınav Takvimi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&display=swap">
 <style>
+  /* Çizgili defter sayfası: her gün elle çizilmiş bir kutu, tarih yuvarlak içine alınmış, saatler fosforlu kalemle */
   :root {
-    --bg: #f5f6f8;
-    --card: #ffffff;
-    --text: #1f2933;
-    --muted: #6b7682;
-    --line: #e6e8ec;
-    --accent: #2f4a7a;
-    --accent-soft: #e9eef7;
-    --meb: #1f7a5a;
-    --meb-soft: #e3f3ec;
-    --sec: #8a5a14;
-    --sec-soft: #fbf0dd;
-    --today: #fff7e0;
+    --paper: #fdfdf9;
+    --rule: #d3e2f1;
+    --margin: #efa6a6;
+    --ink: #22305e;
+    --pencil: #767b8a;
+    --red: #d64545;
+    --green: #2f8f5b;
+    --hl: rgba(255, 224, 60, .55);
+    --hl-today: rgba(255, 128, 180, .45);
+    --sticky: #fff07f;
+    --sticky-ink: #3b3417;
+    --shadow: rgba(30, 40, 70, .14);
+    --hand: "Patrick Hand", "Segoe Print", "Comic Sans MS", cursive;
+    --script: "Caveat", "Segoe Print", "Comic Sans MS", cursive;
   }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #14171c;
-      --card: #1c2027;
-      --text: #e6e9ee;
-      --muted: #95a0ad;
-      --line: #2b313a;
-      --accent: #8fb0e8;
-      --accent-soft: #232c3b;
-      --meb: #6fd1a8;
-      --meb-soft: #1d3029;
-      --sec: #e8b866;
-      --sec-soft: #33291a;
-      --today: #2c2817;
+    :root:not([data-theme="light"]) {
+      --paper: #1d2623;
+      --rule: rgba(255, 255, 255, .055);
+      --margin: rgba(240, 130, 130, .35);
+      --ink: #eef1ea;
+      --pencil: #a3aea8;
+      --red: #ff8a80;
+      --green: #7fdca6;
+      --hl: rgba(255, 224, 60, .28);
+      --hl-today: rgba(255, 128, 180, .32);
+      --sticky: #e6d665;
+      --sticky-ink: #2c2711;
+      --shadow: rgba(0, 0, 0, .4);
+      color-scheme: dark;
     }
   }
+  :root[data-theme="dark"] {
+    --paper: #1d2623;
+    --rule: rgba(255, 255, 255, .055);
+    --margin: rgba(240, 130, 130, .35);
+    --ink: #eef1ea;
+    --pencil: #a3aea8;
+    --red: #ff8a80;
+    --green: #7fdca6;
+    --hl: rgba(255, 224, 60, .28);
+    --hl-today: rgba(255, 128, 180, .32);
+    --sticky: #e6d665;
+    --sticky-ink: #2c2711;
+    --shadow: rgba(0, 0, 0, .4);
+    color-scheme: dark;
+  }
+
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    line-height: 1.45;
-    padding: 32px 16px 48px;
+    color: var(--ink);
+    font-family: var(--hand);
+    font-size: 19px;
+    line-height: 1.35;
+    background-color: var(--paper);
+    background-image: repeating-linear-gradient(to bottom, transparent 0 31px, var(--rule) 31px 32px);
+    padding-block: 28px 56px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
-  .wrap { max-width: 760px; margin: 0 auto; }
-  header { text-align: center; margin-bottom: 24px; }
-  header .school {
-    font-size: 13px;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--muted);
+  .wrap { position: relative; max-width: 680px; margin: 0 auto; }
+  .wrap::before {
+    content: "";
+    position: absolute;
+    top: -28px; bottom: -56px; left: -22px;
+    border-left: 2px solid var(--margin);
   }
-  header h1 {
-    margin: 6px 0 4px;
-    font-size: 28px;
+
+  /* --- başlık --- */
+  header { position: relative; margin-bottom: 26px; }
+  .school { font-size: 17px; color: var(--pencil); }
+  h1 {
+    margin: 0;
+    font-family: var(--script);
     font-weight: 700;
-    color: var(--accent);
+    font-size: 54px;
+    line-height: 1;
+    text-wrap: balance;
   }
-  header p { margin: 0; color: var(--muted); font-size: 15px; }
+  .squiggle { display: block; width: 260px; max-width: 70%; height: 16px; margin-top: 2px; }
+  .squiggle path { fill: none; stroke: var(--red); stroke-width: 3; stroke-linecap: round; }
+  .sub { margin: 6px 0 0; font-size: 20px; }
+
+  .note {
+    position: absolute;
+    right: 0; top: 6px;
+    width: 170px;
+    padding: 14px 14px 12px;
+    background: var(--sticky);
+    color: var(--sticky-ink);
+    font-family: var(--script);
+    font-size: 25px;
+    line-height: 1.05;
+    text-align: center;
+    transform: rotate(3deg);
+    box-shadow: 2px 6px 12px var(--shadow);
+  }
+  .note::before {
+    content: "";
+    position: absolute;
+    top: -9px; left: 50%;
+    width: 64px; height: 18px;
+    margin-left: -32px;
+    background: rgba(255, 255, 255, .45);
+    transform: rotate(-4deg);
+  }
+  .note b { display: block; font-size: 44px; line-height: 1; }
 
   .legend {
     display: flex;
-    justify-content: center;
-    gap: 16px;
     flex-wrap: wrap;
-    margin-bottom: 20px;
-    font-size: 13px;
-    color: var(--muted);
+    gap: 6px 22px;
+    margin: 0 0 22px;
+    font-size: 17px;
+    color: var(--pencil);
   }
-  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend > span { display: inline-flex; align-items: center; gap: 8px; }
+  .legend .meb, .legend .sec { margin-left: 4px; }
 
-  .card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 6px 20px rgba(0,0,0,.04);
+  /* --- elle çizilmiş çerçeveler --- */
+  .sketch { position: relative; }
+  .sketch::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--ink);
+    border-radius: 18px 6px 16px 5px / 5px 16px 6px 18px;
+    filter: url(#rough);
+    pointer-events: none;
   }
-  table { width: 100%; border-collapse: collapse; }
-  thead th {
-    text-align: left;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 14px 18px;
-    border-bottom: 1px solid var(--line);
-  }
-  tbody td {
-    padding: 13px 18px;
-    border-bottom: 1px solid var(--line);
-    vertical-align: middle;
-    font-size: 15px;
-  }
-  tbody tr:last-child td { border-bottom: none; }
-  tr.day-start td { border-top: 2px solid var(--line); }
-  tbody tr:first-child td { border-top: none; }
 
-  td.date { white-space: nowrap; width: 150px; }
-  td.date .d { font-weight: 600; }
-  td.date .w { display: block; font-size: 13px; color: var(--muted); }
-  td.lesson { font-weight: 500; }
-  td.time { white-space: nowrap; width: 90px; text-align: right; }
-  thead th.time { text-align: right; }
+  .days { display: grid; gap: 16px; }
+  .day {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    background: var(--paper);
+  }
+  .day:nth-child(odd) { transform: rotate(-.35deg); }
+  .day:nth-child(even) { transform: rotate(.3deg); }
 
-  .period {
-    display: inline-block;
-    min-width: 62px;
+  .date {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 6px;
     text-align: center;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: var(--accent-soft);
-    color: var(--accent);
-    font-size: 13px;
-    font-weight: 600;
   }
-  .tag {
+  .date::after {
+    content: "";
+    position: absolute;
+    right: 0; top: 10px; bottom: 10px;
+    border-left: 2px solid var(--ink);
+    filter: url(#rough);
+  }
+  .num {
+    position: relative;
+    font-family: var(--script);
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 1;
+    padding: 4px 10px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .num::before {
+    content: "";
+    position: absolute;
+    inset: -2px -6px -4px -8px;
+    border: 2px solid var(--red);
+    border-radius: 50% 46% 52% 44% / 48% 54% 44% 52%;
+    transform: rotate(-8deg);
+    filter: url(#rough);
+  }
+  .mon { margin-top: 4px; font-size: 16px; }
+  .wd { font-size: 15px; color: var(--pencil); }
+
+  .rows { display: flex; flex-direction: column; list-style: none; margin: 0; padding: 0; min-width: 0; }
+  .row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    min-height: 60px;
+    flex: 1;
+  }
+  .row + .row::before {
+    content: "";
+    position: absolute;
+    left: 12px; right: 12px; top: 0;
+    border-top: 2px dashed var(--pencil);
+    filter: url(#rough);
+    opacity: .7;
+  }
+  .lesson { flex: 1; min-width: 0; font-size: 21px; }
+  .meb, .sec { white-space: nowrap; font-size: 15px; }
+  .meb {
+    position: relative;
     display: inline-block;
-    margin-left: 6px;
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    vertical-align: 2px;
-    white-space: nowrap;
+    margin-left: 8px;
+    padding: 0 6px;
+    color: var(--green);
   }
-  .tag.meb { background: var(--meb-soft); color: var(--meb); }
-  .tag.sec { background: var(--sec-soft); color: var(--sec); }
-
-  @media (min-width: 561px) {
-    tbody tr:not(.day-start) td.date > * { visibility: hidden; }
+  .meb::before {
+    content: "";
+    position: absolute;
+    inset: -1px -3px;
+    border: 1.5px solid var(--green);
+    border-radius: 50%;
+    transform: rotate(-3deg);
+    filter: url(#rough);
   }
+  .sec { margin-left: 6px; color: var(--pencil); }
 
-  tr.past td { opacity: .45; }
-  tr.is-today td { background: var(--today); }
-
-  footer {
-    margin-top: 18px;
-    text-align: center;
-    font-size: 13px;
-    color: var(--muted);
+  .time { white-space: nowrap; font-size: 20px; font-variant-numeric: tabular-nums; }
+  .time mark {
+    color: inherit;
+    padding: 0 6px;
+    background: linear-gradient(100deg, transparent 2%, var(--hl) 6%, var(--hl) 94%, transparent 98%);
+    border-radius: 4px 10px 6px 12px;
   }
 
-  @media (max-width: 560px) {
-    body { padding-top: 20px; }
-    header h1 { font-size: 23px; }
-    thead { display: none; }
-    tbody td { padding: 10px 14px; font-size: 14px; }
-    td.date { width: auto; }
-    td.date .w { display: inline; margin-left: 4px; }
-    td.date .w::before { content: "· "; }
-    tbody tr { display: grid; grid-template-columns: 1fr auto; border-bottom: 1px solid var(--line); }
-    tbody tr:last-child { border-bottom: none; }
-    tbody td, tr.day-start td { border: none; }
-    tbody tr td.date { grid-column: 1 / 2; padding-bottom: 0; }
-    tbody tr td.time { grid-column: 2 / 3; grid-row: 1 / 3; align-self: center; }
-    tbody tr td.lesson { grid-column: 1 / 2; padding-top: 4px; }
-    tr.day-start { border-top: 2px solid var(--line); }
-    tbody tr:first-child { border-top: none; }
+  .row.past .lesson, .row.past .time { opacity: .5; }
+  .row.past .lesson {
+    text-decoration: line-through;
+    text-decoration-color: var(--red);
+    text-decoration-thickness: 2px;
+  }
+  .row.today .time mark { background: var(--hl-today); }
+  .row.today .lesson::after {
+    content: "bugün!";
+    margin-left: 8px;
+    font-family: var(--script);
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--red);
+  }
+
+  footer { margin-top: 26px; font-size: 17px; color: var(--pencil); }
+
+  @media (max-width: 600px) {
+    body { font-size: 18px; padding-block-start: 22px; }
+    .wrap::before { display: none; }
+    h1 { font-size: 44px; }
+    .note {
+      position: relative;
+      right: auto; top: auto;
+      width: auto;
+      margin: 18px 6px 0;
+      padding: 10px 14px;
+      font-size: 23px;
+      transform: rotate(-1.2deg);
+    }
+    .note b { display: inline; font-size: 32px; }
+    .day { grid-template-columns: 68px 1fr; }
+    .num { font-size: 34px; padding: 4px 6px 0; }
+    .row { padding: 11px 12px; gap: 8px; }
+    .lesson { font-size: 19px; }
+    .time { font-size: 18px; }
+    .meb { margin-left: 4px; }
   }
 </style>
 </head>
 <body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="rough">
+    <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7"/>
+    <feDisplacementMap in="SourceGraphic" scale="3.5"/>
+  </filter>
+</svg>
+
 <div class="wrap">
   <header>
     <div class="school">Şehitler Ortaokulu · 2026–2027</div>
-    <h1>7. Sınıf Sınav Takvimi</h1>
-    <p>1. Dönem 1. Yazılı Sınavları</p>
+    <h1>7. Sınıf Sınavları</h1>
+    <svg class="squiggle" viewBox="0 0 260 16" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M3 10 C 25 3, 40 14, 62 8 S 100 3, 122 9 S 160 14, 184 7 S 228 4, 257 9"/>
+    </svg>
+    <p class="sub">1. Dönem · 1. Yazılılar</p>
+    <div class="note" id="note"></div>
   </header>
 
   <div class="legend">
-    <span><span class="tag meb">MEB Ortak</span> MEB ortak sınavı</span>
-    <span><span class="tag sec">Seçmeli</span> Yalnızca dersi seçenler</span>
+    <span><span class="meb">MEB ortak</span> MEB ortak sınavı</span>
+    <span><span class="sec">(seçmeli)</span> sadece seçenler girer</span>
   </div>
 
-  <div class="card">
-    <table>
-      <thead>
-        <tr>
-          <th>Tarih</th>
-          <th>Ders</th>
-          <th class="time">Saat</th>
-        </tr>
-      </thead>
-      <tbody id="exams"></tbody>
-    </table>
-  </div>
+  <div class="days" id="days"></div>
 
-  <footer>Geçmiş sınavlar soluk, bugünkü sınavlar vurgulu görünür.</footer>
+  <footer>Üstü çizili sınavlar geride kaldı. Başarılar!</footer>
 </div>
 
 <script>
   const exams = [
-    ["2026-11-03", "Fen Bilimleri", "meb", "2. Ders"],
-    ["2026-11-03", "Oyun ve Oyun Etkinlikleri", "sec", "4. Ders"],
-    ["2026-11-04", "Matematik ve Bilim Uygulamaları", "sec", "2. Ders"],
-    ["2026-11-05", "Matematik", "meb", "2. Ders"],
-    ["2026-11-05", "Beden Eğitimi", "", "4. Ders"],
-    ["2026-11-06", "Sosyal Bilgiler", "meb", "2. Ders"],
-    ["2026-11-06", "Ahlak ve Vatandaşlık", "sec", "4. Ders"],
-    ["2026-11-09", "Temel Dini Bilgiler", "sec", "2. Ders"],
-    ["2026-11-09", "Peygamberimizin Hayatı", "sec", "4. Ders"],
-    ["2026-11-10", "Türkçe", "meb", "5. Ders"],
-    ["2026-11-10", "Müzik", "", "7. Ders"],
-    ["2026-11-11", "Teknoloji ve Tasarım", "", "2. Ders"],
-    ["2026-11-11", "Spor", "sec", "4. Ders"],
-    ["2026-11-12", "Yabancı Dil", "meb", "2. Ders"],
-    ["2026-11-12", "Hukuk ve Adalet", "sec", "4. Ders"],
-    ["2026-11-13", "Din Kültürü ve Ahlak Bilgisi", "meb", "2. Ders"],
-    ["2026-11-13", "Görsel Sanatlar", "", "4. Ders"]
+    ["2026-11-03", "Fen Bilimleri", "meb", "2. ders"],
+    ["2026-11-03", "Oyun ve Oyun Etkinlikleri", "sec", "4. ders"],
+    ["2026-11-04", "Matematik ve Bilim Uygulamaları", "sec", "2. ders"],
+    ["2026-11-05", "Matematik", "meb", "2. ders"],
+    ["2026-11-05", "Beden Eğitimi", "", "4. ders"],
+    ["2026-11-06", "Sosyal Bilgiler", "meb", "2. ders"],
+    ["2026-11-06", "Ahlak ve Vatandaşlık", "sec", "4. ders"],
+    ["2026-11-09", "Temel Dini Bilgiler", "sec", "2. ders"],
+    ["2026-11-09", "Peygamberimizin Hayatı", "sec", "4. ders"],
+    ["2026-11-10", "Türkçe", "meb", "5. ders"],
+    ["2026-11-10", "Müzik", "", "7. ders"],
+    ["2026-11-11", "Teknoloji ve Tasarım", "", "2. ders"],
+    ["2026-11-11", "Spor", "sec", "4. ders"],
+    ["2026-11-12", "Yabancı Dil", "meb", "2. ders"],
+    ["2026-11-12", "Hukuk ve Adalet", "sec", "4. ders"],
+    ["2026-11-13", "Din Kültürü ve Ahlak Bilgisi", "meb", "2. ders"],
+    ["2026-11-13", "Görsel Sanatlar", "", "4. ders"]
   ];
 
   const days = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
   const months = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
-  const tags = { meb: '<span class="tag meb">MEB Ortak</span>', sec: '<span class="tag sec">Seçmeli</span>' };
+  const tags = { meb: '<span class="meb">MEB ortak</span>', sec: '<span class="sec">(seçmeli)</span>' };
 
+  const toDate = iso => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d); };
   const now = new Date();
-  const todayKey = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  const tbody = document.getElementById("exams");
-  let prev = null;
-  for (const [iso, lesson, tag, time] of exams) {
-    const [y, m, d] = iso.split("-").map(Number);
-    const date = new Date(y, m - 1, d);
-    const tr = document.createElement("tr");
-    if (iso !== prev) tr.className = "day-start";
-    if (iso < todayKey) tr.classList.add("past");
-    if (iso === todayKey) tr.classList.add("is-today");
-    tr.innerHTML =
-      `<td class="date"><span class="d">${d} ${months[m - 1]}</span><span class="w">${days[date.getDay()]}</span></td>` +
-      `<td class="lesson">${lesson}${tags[tag] || ""}</td>` +
-      `<td class="time"><span class="period">${time}</span></td>`;
-    tbody.appendChild(tr);
-    prev = iso;
+  const groups = new Map();
+  for (const e of exams) {
+    if (!groups.has(e[0])) groups.set(e[0], []);
+    groups.get(e[0]).push(e);
+  }
+
+  const box = document.getElementById("days");
+  for (const [iso, list] of groups) {
+    const date = toDate(iso);
+    const state = date < today ? " past" : +date === +today ? " today" : "";
+    const section = document.createElement("section");
+    section.className = "day sketch";
+    section.innerHTML =
+      `<div class="date"><span class="num">${date.getDate()}</span>` +
+      `<span class="mon">${months[date.getMonth()]}</span><span class="wd">${days[date.getDay()]}</span></div>` +
+      `<ul class="rows">` +
+      list.map(([, lesson, tag, time]) =>
+        `<li class="row${state}"><span class="lesson">${lesson}${tags[tag] || ""}</span>` +
+        `<span class="time"><mark>${time}</mark></span></li>`).join("") +
+      `</ul>`;
+    box.appendChild(section);
+  }
+
+  const next = [...groups.keys()].map(toDate).find(d => d >= today);
+  const note = document.getElementById("note");
+  if (!next) {
+    note.innerHTML = "Sınavlar bitti, tebrikler!";
+  } else if (+next === +today) {
+    note.innerHTML = "Bugün sınav var, başarılar!";
+  } else {
+    const left = Math.round((next - today) / 86400000);
+    const first = +next === +toDate(exams[0][0]);
+    note.innerHTML = `${first ? "İlk" : "Sıradaki"} sınava <b>${left}</b> gün kaldı`;
   }
 </script>
 </body>
